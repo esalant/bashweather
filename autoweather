@@ -1,0 +1,26 @@
+#!/bin/sh
+
+AUTOZIP=$(curl -s https://www.ipinfodb.com/my_ip_location.php | grep Postcode -A1 | tail -n1 | awk {'print$1'}) #pulls zip code
+LOCATION=$(curl -s https://mylocation.org | grep City -A1 | tail -n1 | sed 's/<[^>]\+>//g') #pulls location
+AUTOWEATHER=$(curl -s "http://rss.accuweather.com/rss/liveweather_rss.asp?metric=2&locCode=$AUTOZIP" | sed -n '/Currently:/ s/.*: \(.*\): \([0-9]*\)\([CF]\).*/\2°\3, \1/p') #pulls weather
+
+
+read -p "Would you like me to find your current weather automatically? [y,n]: " ANSWER
+
+if [ $ANSWER = y ];
+then
+        echo "Location: "$LOCATION | sed 's/ //1' #prints location
+        echo "It is currently: "$AUTOWEATHER #prints weather
+
+elif [ $ANSWER = n ];
+then
+        read -p "Enter your zip code : " ZIP
+
+        echo "It is currently: "`curl -s "http://rss.accuweather.com/rss/liveweather_rss.asp?metric=2&locCode=$ZIP" | sed -n '/Currently:/ s/.*: \(.*\): \([0-9]*\)\([CF]\).*/\2°\3, \1/p'`
+
+
+else
+
+        echo "It was a simple y or n. HOW DID YOU MESS THAT UP?!?!?"
+
+fi
